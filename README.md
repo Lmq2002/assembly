@@ -45,7 +45,6 @@ my assembly homework
   但这种做法和设计如果遇到数据不可预知的题目的时候是有很大问题的，且我尚不知在此基础上如何做出合适的改变。
   总之一切的一切就是为了完美的输出，所以变量取巧以争取时间上最快完成应该无可厚非吧……
 
-
 ## 九九乘法表的纠错
 
 - 要求
@@ -90,3 +89,53 @@ my assembly homework
   按照流程图，我没有想清楚DISP和DISPP有什么区别，或许是我忽略了数据的合法性才会如此。
   这一次用了两个地址寄存器SI和DI，没有出现报错，暂且不管。
   试了几次DEBUG，观察了一下SP的变化以及查看了对应地址的内容，应该是低地址对应低地址数据，高地址对应高地址数据。
+
+## 子程序和多模块
+
+- 本程序是将累加程序改写成多模块形式，也就是将一个源文件拆成多个源文件，并且注意数据、段、过程的使用问题。
+- 暂时没有用到宏指令。
+- 相关asm和exe文件请看 ./mul
+
+### 程序结构
+
+  一共有三个源程序文件，主要看过程调用：
+  myasm1.asm
+
+  ```asm
+    extern shift:proc
+    extern addp:proc
+    extern output:proc
+  ```
+
+  myasm2.asm
+
+  ```asm
+    public shift
+    public addp
+  ```
+
+  myasm3.asm
+
+  ```asm
+    public output
+  ```
+
+### 错误归纳
+
+- ERROR L2002
+  ![L2002](./picture/L2002.jpg)
+  解决办法：
+  1. 不同文件要想合并code和data段，需要在segment后面加 word public '段标识'
+  2. PUBLIC和EXTERN要写在文件头部，不要写在过程里面
+
+### 结果展示
+
+  ![mul](./picture/mul.jpg)
+
+### 总结
+
+- 本次作业主程序调用的函数都是near的，call没有看到有压CS入栈；可以观察到debug的时候call myproc的myproc变成对应入口地址
+- 不同文件的相同段要想不覆盖，需要加上public标识才行，否则link后会报L2002的错误。
+- 有关public和extern的问题在masm的时候不会出现，在link的时候才会出现
+- 使用的masm版本无法让proc带参数，所以想要过程带参数可能只有macrop可以，或者proc利用堆栈、变量等间接方式。
+  
