@@ -1,0 +1,54 @@
+
+DATA SEGMENT
+	OUTPUT DB 'TONGJI UNIVERSITY!'	;18
+DATA ENDS
+
+CODE SEGMENT
+ASSUME CS:CODE,DS:DATA
+START:
+
+	MOV AH,00H
+	MOV AL,03H
+	INT 10H		;设置显示模式为80*25,16色的文字模式
+
+	MOV AL,0
+	MOV CX,0	;左上角
+	MOV DX,1850H	;右下角
+	MOV BH,0FH	;属性
+	MOV AH,06H
+	INT 10H		;清屏
+
+	;显示字符串
+	MOV CX,18	;循环次数
+	
+	MOV BH,0	;页号
+	MOV DX,0C20H	;光标起始位置
+	MOV AH,02H
+	INT 10H		;设置光标位置
+
+	MOV AX,DATA
+	MOV DS,AX	;段地址
+	MOV SI,OFFSET OUTPUT	;偏移地址
+
+	MOV BL,02H	;绿色
+S0:
+	MOV AL,DS:[SI]
+	INC SI
+	MOV AH,09H
+	INT 10H		;显示字符
+	
+	INC DX	;光标起始位置
+	MOV AH,02H
+	INT 10H		;移动光标往前
+
+	LOOP S0
+	
+	MOV BH,0	;页号
+	MOV DX,1800H	;光标起始位置
+	MOV AH,02H
+	INT 10H		;设置光标位置
+
+	MOV AH,4CH
+	INT 21H
+CODE ENDS
+END START
